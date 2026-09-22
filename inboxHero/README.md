@@ -1,6 +1,6 @@
 # inboxHero
 
-**Repository:** https://github.com/&lt;you&gt;/inboxhero  ← replace with your public repo link
+**Repository:** https://github.com/a-pramanik-code/inboxHero/edit/main/inboxHero
 
 An agentic system that takes an inbox from unread to empty by deciding what to
 do with every message, doing the reversible parts, and refusing or gating the
