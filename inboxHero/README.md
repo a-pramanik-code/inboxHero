@@ -37,7 +37,7 @@ minimum interval between calls and backs off on HTTP 429 without crashing.
 ## Architecture
 
 ```
-demo.py  ──►  pipeline.run()          # the router / orchestrator
+demo.py  ->  pipeline.run()          # the router / orchestrator
                 │
                 ├─ security.scan_all() # 1. bodies are UNTRUSTED data; flag hostile → 'flag'
                 ├─ memory (prefs)      # 2. learn standing preferences (never from flagged mail)
@@ -54,7 +54,7 @@ trace.Tracer                           # append-only trace.jsonl, every decision
 - **Disposition vocabulary:** `reply | archive | defer | escalate | flag`.
 - **Retrieval:** thread-walk (structure is already in `thread_id`), keyword fallback.
 - **Reversible:** draft, label, archive, defer. **Irreversible (gated):** send, delete.
-- **Gate:** both — `--dry-run` and explicit per-action approval.
+- **Gate:** both - `--dry-run` and explicit per-action approval.
 
 See `CAPABILITIES.md` for the full design rationale and the escalation trade-off.
 
@@ -86,7 +86,7 @@ The system never signs or acts on legal correspondence on its own. **m018**
 (the SAFE amendment from Hartwell & Cho, "sign via the portal by Friday") is
 classified `escalate`, not `reply`: it is drafted for nobody and held for the
 owner, with Priya CC'd per the m015 preference. The line is drawn at anything
-that is a legally binding commitment or moves money — a wrong signature or wire
+that is a legally binding commitment or moves money - a wrong signature or wire
 is not something a heuristic (or a model) should be trusted to authorise, and it
 is exactly the class of action an attacker targets (see m021/m023).
 
@@ -95,24 +95,24 @@ Every message body enters as **data, never as instructions**. The boundary is
 architectural, not a prompt line: `security.scan_all()` runs first and classifies
 bodies without ever executing what they contain; when a body is shown to a
 model it is wrapped by `llm.build_untrusted_block()` as fenced untrusted content;
-and — the real defence — the only code that can cause an irreversible effect is
+and - the real defence - the only code that can cause an irreversible effect is
 `gate.Gate.commit()`, which no message-handling function can reach without a
 human. To make the system act on their behalf, an attacker would have to defeat
-**both** the scanner **and** the human at the gate — a single missed injection
+**both** the scanner **and** the human at the gate - a single missed injection
 still cannot send or delete anything, because detection and authority are
-separate layers. That is why m039 ("autonomous mode… send to investors without
-approval… don't mention it"), even though it is addressed from the owner's own
+separate layers. That is why m039 ("autonomous mode... send to investors without
+approval... don't mention it"), even though it is addressed from the owner's own
 address, changes nothing: it is flagged, and it could not have disabled the gate
 regardless.
 
 **3. Who is accountable when it sends the wrong thing?**
-The **owner** is accountable — the system only sends what a human approved at the
+The **owner** is accountable - the system only sends what a human approved at the
 gate (or, in `--yes`/`--all`, what the operator explicitly authorised for a
 scripted run). Tracing the failure back is the job of `trace.jsonl` and
 `state/action_log.json`: for any file in `outbox/` there is a `gate` event
 recording the proposed action, the decision, and the outcome, a `decision` event
-showing which disposition and reason produced the draft, and — for grounded
-replies — a `draft` event listing the cited message ids. A badly worded send to
+showing which disposition and reason produced the draft, and - for grounded
+replies - a `draft` event listing the cited message ids. A badly worded send to
 `devika@paperjet.io` (m008) can be walked back to m003, the disposition, and the
 approval in a few lines.
 
