@@ -1,4 +1,4 @@
-# CAPABILITIES.md — inboxHero
+# CAPABILITIES.md - inboxHero
 
 **Student:Ansuman Pramaink, Evernorth-aai-1180197;
 
@@ -30,7 +30,7 @@ commitments and conflicts across messages. Irreversible actions (`send`,
 
 - **Framework: none.** The work is a fixed sequence with one branch (rule-path
   vs reasoning-path); a crew or graph would have been overhead and would have
-  blurred the one property that matters most here — that only one function can
+  blurred the one property that matters most here - that only one function can
   send. See Final Report Q4.
 - **Retrieval: thread-walk.** An inbox already carries its structure in
   `thread_id`, so walking the thread is cheaper and more precise than embeddings
@@ -55,7 +55,7 @@ commitments and conflicts across messages. Irreversible actions (`send`,
   Nothing in the message-handling path can reach the filesystem otherwise. This
   is also the Part 6 defence: a hostile message can influence a *draft*, but it
   cannot reach a *send* without a human passing the gate.
-- **Escalation line — where we drew it and what we traded.** We ask for approval
+- **Escalation line - where we drew it and what we traded.** We ask for approval
   only on **sends** (all of them, since a send can't be unsent) and we
   **escalate** money/legal/signature decisions and time conflicts to the owner.
   Reversible archives and defers are automatic. The trade: a newsletter could in
