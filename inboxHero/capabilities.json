@@ -1,6 +1,6 @@
 {
-  "student": "<Your Name>, <ROLL NUMBER>",
-  "repo": "https://github.com/<you>/inboxhero",
+  "student": "Ansuman Pramanik, Evernorth-aai-1180197",
+  "repo": "https://github.com/a-pramanik-code/inboxHero/edit/main/inboxHero",
   "system": {
     "framework": "none",
     "model": "Offline deterministic heuristics by default (no key required). Optional live model via config.py: developed against a local llama3.1:8b (Ollama) to dodge rate limits, targets gemini-1.5-flash for drafting when INBOXHERO_LLM_PROVIDER=gemini.",
