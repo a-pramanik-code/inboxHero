@@ -1,0 +1,8 @@
+{
+  "in_reply_to": "m008",
+  "to": "devika@paperjet.io",
+  "cc": [],
+  "subject": "Re: Staging is down again",
+  "body": "Hi,\n\nAs requested, here is the detail from our earlier message (m003):\n\n    amqp://pj_stage:Rk7-quiet-otter-51@broker-stg.paperjet.io:5672/pjs\n\nLet me know if you need anything else.\n\n-- Sam",
+  "sent_at": "2026-09-22T23:18:06"
+}

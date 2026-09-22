@@ -1,0 +1,21 @@
+[
+  {
+    "id": "m041",
+    "kind": "no_early_meetings",
+    "description": "Never accept meetings before 11:00; offer 11:00 or later instead.",
+    "params": {
+      "min_hour": 11,
+      "source_subject": "my calendar rule (please remember)"
+    }
+  },
+  {
+    "id": "m015",
+    "kind": "cc_rule",
+    "description": "Always CC priya@paperjet.io on mail from hartwellcho.com.",
+    "params": {
+      "match_domain": "hartwellcho.com",
+      "cc": "priya@paperjet.io",
+      "source_subject": "Legal correspondence -- loop me in"
+    }
+  }
+]

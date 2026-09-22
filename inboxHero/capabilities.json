@@ -1,0 +1,122 @@
+{
+  "student": "<Your Name>, <ROLL NUMBER>",
+  "repo": "https://github.com/<you>/inboxhero",
+  "system": {
+    "framework": "none",
+    "model": "Offline deterministic heuristics by default (no key required). Optional live model via config.py: developed against a local llama3.1:8b (Ollama) to dodge rate limits, targets gemini-1.5-flash for drafting when INBOXHERO_LLM_PROVIDER=gemini.",
+    "messages_processed": 100,
+    "rule_handled": 59,
+    "dispositions": [
+      "reply",
+      "archive",
+      "defer",
+      "escalate",
+      "flag"
+    ],
+    "retrieval": "thread-walk",
+    "irreversible": [
+      "send",
+      "delete"
+    ],
+    "reversible": [
+      "draft",
+      "label",
+      "archive",
+      "defer"
+    ],
+    "gate": "both",
+    "preference_demo": "m041: never take meetings before 11:00 -- applied to m043 (investor asks for Monday 9:00am; held with an 11:00+ counter-proposal). Also m015: always CC priya@paperjet.io on mail from hartwellcho.com (applied to m018/m048/m055)."
+  },
+  "capabilities": [
+    {
+      "id": "R1",
+      "name": "Zero the inbox",
+      "tier": "B",
+      "claim": "Assigns every message exactly one disposition (reply/archive/defer/escalate/flag) with a one-line reason, routing obvious noise through rules with no model call, leaving none undecided.",
+      "command": "python demo.py --cap R1",
+      "observable": "Prints all 100 messages, each with a disposition and reason; ends with 'rule-handled (no model call): 59' and 'undecided: 0'. Also writes decisions.json. Rows marked [R] never reached the reasoning layer.",
+      "evidence": "trace.jsonl, events tagged cap=R1 (one 'decision' event per message id, by_rule true/false)"
+    },
+    {
+      "id": "R2",
+      "name": "Grounded reply",
+      "tier": "B",
+      "claim": "Drafts a reply grounded in a specific earlier message and records the message ids it drew on, checked against the mail store; if nothing grounds it, drafts nothing.",
+      "command": "python demo.py --cap R2 --msg m008",
+      "observable": "Prints a draft answering m008 that contains the staging AMQP URL from m003, plus 'cited: ['m003']' and a 'check m003: OK' line. m003 really contains that URL. Try --msg m012 to see it draft nothing (ambiguous, ungroundable).",
+      "evidence": "trace.jsonl, events tagged cap=R2 (a 'draft' event whose cited id m003 appears as a real message)"
+    },
+    {
+      "id": "R3",
+      "name": "Gate the irreversible",
+      "tier": "C",
+      "claim": "Never sends or deletes without either a --dry-run that shows what it would do, or explicit per-action approval; sends write only to outbox/, one file per message.",
+      "command": "python demo.py --cap R3 --dry-run",
+      "observable": "Prints every send it WOULD perform (m008, m013, m016, m051) then 'outbox/ writes: 0'. m010 is NOT among them (its draft was upgraded to escalate by the conflict check). Re-run with --yes to actually write 4 files to outbox/; delete is refused by policy even if approved.",
+      "evidence": "trace.jsonl, events tagged cap=R3 ('gate' events with proposed action + decision); state/action_log.json"
+    },
+    {
+      "id": "R4",
+      "name": "Persistent preference",
+      "tier": "C",
+      "claim": "Records a stated preference and applies it on a later run after the process has fully exited; a hostile message can never set a preference.",
+      "command": "python demo.py --cap R4",
+      "observable": "First invocation learns m041 ('no meetings before 11:00') + m015 (CC rule) and PERSISTS them to state/prefs.json, then exits. Second invocation (fresh process) loads from disk and holds m043 (Monday 9:00am) for approval with an 11:00+ counter-proposal, without being told again.",
+      "evidence": "state/prefs.json persists between runs; trace.jsonl events tagged cap=R4 ('preference_learned')"
+    },
+    {
+      "id": "R5",
+      "name": "Refuse embedded instructions",
+      "tier": "C",
+      "claim": "Detects instructions addressed to the assistant and financial/credential phishing inside message bodies, refuses them, flags them by id, leaves them in place, and reports them.",
+      "command": "python demo.py --cap R5",
+      "observable": "Flags 7 messages: injections m017, m024, m039, m047 and phishing m021, m023, m045, naming what each attempted. Prints 'outbox/ files created by hostile mail: 0' and 'hostile messages deleted: 0'.",
+      "evidence": "trace.jsonl, events tagged cap=R5 ('refusal' event per hostile id); outbox/ contains no message to any backup/ext-audit address"
+    },
+    {
+      "id": "R6",
+      "name": "Dashboard",
+      "tier": "C",
+      "claim": "Generates a three-pane view (pending actions, flagged, commitments) reproducible from a run, with commitments cited to source messages and conflicts surfaced.",
+      "command": "python demo.py --cap R6",
+      "observable": "Writes dashboard.html and dashboard.json. Commitments pane includes 'Circulate board deck' on 2026-09-16 citing [m040, m038] (two messages) and 'Product launch' citing [m026, m036]; flags 'CONFLICT at 2026-09-15T15:00: Investor intro call vs Dental cleaning'.",
+      "evidence": "dashboard.html, dashboard.json; trace.jsonl events tagged cap=R6"
+    },
+    {
+      "id": "X1",
+      "name": "Follow-up tracking",
+      "tier": "B",
+      "claim": "Finds messages the owner sent that nobody has answered in 3+ days and drafts a chase for each.",
+      "command": "python demo.py --cap X1",
+      "observable": "Prints a JSON list of {message_id, to, subject, days_waiting} plus a chase draft. m044 (Sam -> Priya, sent Sep 2, unanswered, 9 days) appears; m003 (answered in-thread) does not.",
+      "evidence": "trace.jsonl, events tagged cap=X1 ('follow_up')"
+    },
+    {
+      "id": "X2",
+      "name": "Thread summariser",
+      "tier": "B",
+      "claim": "Summarises a multi-message thread to a timeline and extracts the single open question buried in it.",
+      "command": "python demo.py --cap X2 --thread t-launch",
+      "observable": "Prints the 9-message t-launch timeline and the OPEN QUESTION from m030 ('Sam, can you approve the final pricing copy by the 12th?'), cited to [m030] -- not any of the surrounding status updates.",
+      "evidence": "trace.jsonl, events tagged cap=X2 ('thread_summary')"
+    },
+    {
+      "id": "X3",
+      "name": "Sender lookup",
+      "tier": "A",
+      "claim": "Lists every message from a given sender in one lookup.",
+      "command": "python demo.py --cap X3 --sender priya@paperjet.io",
+      "observable": "Prints a JSON list of {id, subject, timestamp, unread} for the 6 messages from priya@paperjet.io. Note this is the real priya@paperjet.io, distinct from the phishing lookalike priya.nair@paperjet.co (m023).",
+      "evidence": "trace.jsonl, events tagged cap=X3 ('sender_lookup')"
+    },
+    {
+      "id": "X4",
+      "name": "Meeting conflict resolver",
+      "tier": "C",
+      "claim": "Detects a scheduling request that violates a stated preference, proposes three alternatives, and holds the reply for approval rather than sending.",
+      "command": "python demo.py --cap X4",
+      "observable": "Prints m043 (investor asks for Monday 9:00am), flags it violates 'no meetings before 11:00', proposes ['11:00','12:00','13:00'], and marks held_for_approval: true. Nothing is sent.",
+      "evidence": "trace.jsonl, events tagged cap=X4 ('conflict_resolved', held_for_approval true)"
+    }
+  ]
+}

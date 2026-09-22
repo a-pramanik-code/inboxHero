@@ -1,0 +1,5 @@
+# inboxHero has no hard third-party requirements: it runs on the Python
+# standard library alone (offline mode). The packages below are OPTIONAL and
+# only used if you configure a live model provider or a .env file.
+python-dotenv>=1.0.0     # optional: load a local .env
+requests>=2.28.0         # optional: only used when INBOXHERO_LLM_PROVIDER != offline
